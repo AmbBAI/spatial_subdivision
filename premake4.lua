@@ -39,7 +39,7 @@ solution "spatial_subdivision"
     "Release",
   }
 
-  if _ACTION == "xcode3" then
+  if _ACTION == "xcode4" then
     platforms {
       "Universal",
     }
@@ -56,7 +56,7 @@ solution "spatial_subdivision"
   startproject "spatial_subdivision"
 
 BGFX_DIR = path.getabsolute("./bgfx")
-local BGFX_BUILD_DIR = "./.build"
+local BGFX_BUILD_DIR = "./build"
 local BGFX_THIRD_PARTY_DIR = path.join(BGFX_DIR, "3rdparty")
 BX_DIR = path.getabsolute(path.join(BGFX_DIR, "../bx"))
 
@@ -318,7 +318,7 @@ function createProject(_name)
       "-framework QuartzCore",
     }
 
-  configuration { "xcode3", "ios" }
+  configuration { "xcode4", "ios" }
     kind "WindowedApp"
     files {
       path.join(BGFX_DIR, "examples/runtime/iOS-Info.plist"),
