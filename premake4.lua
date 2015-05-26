@@ -3,8 +3,6 @@
 -- License: http://www.opensource.org/licenses/BSD-2-Clause
 --
 
-buildoptions_cpp = buildoptions
-
 newoption {
   trigger = "with-amalgamated",
   description = "Enable amalgamated build.",
@@ -35,13 +33,13 @@ newoption {
   description = "Enable building tools.",
 }
 
-solution "bgfx"
+solution "spatial_subdivision"
   configurations {
     "Debug",
     "Release",
   }
 
-  if _ACTION == "xcode4" then
+  if _ACTION == "xcode3" then
     platforms {
       "Universal",
     }
@@ -66,6 +64,7 @@ defines {
   "BX_CONFIG_ENABLE_MSVC_LEVEL4_WARNINGS=1"
 }
 
+buildoptions_cpp = buildoptions
 dofile (path.join(BX_DIR, "scripts/toolchain.lua"))
 if not toolchain(BGFX_BUILD_DIR, BGFX_THIRD_PARTY_DIR) then
   return -- no action specified
@@ -319,7 +318,7 @@ function createProject(_name)
       "-framework QuartzCore",
     }
 
-  configuration { "xcode4", "ios" }
+  configuration { "xcode3", "ios" }
     kind "WindowedApp"
     files {
       path.join(BGFX_DIR, "examples/runtime/iOS-Info.plist"),
@@ -346,11 +345,6 @@ dofile (path.join(BGFX_DIR, "scripts/example-common.lua"))
 
 createProject("spatial_subdivision")
 
--- C99 source doesn't compile under WinRT settings
--- if not premake.vstudio.iswinrt() then
---   exampleProject("25-c99")
--- end
-
 if _OPTIONS["with-shared-lib"] then
   group "libs"
   bgfxProject("-shared-lib", "SharedLib", {})
@@ -358,8 +352,8 @@ end
 
 if _OPTIONS["with-tools"] then
   group "tools"
-  dofile "makedisttex.lua"
-  dofile "shaderc.lua"
-  dofile "texturec.lua"
-  dofile "geometryc.lua"
+  dofile (path.join(BGFX_DIR, "scripts/makedisttex.lua"))
+  dofile (path.join(BGFX_DIR, "scripts/shaderc.lua"))
+  dofile (path.join(BGFX_DIR, "scripts/texturec.lua"))
+  dofile (path.join(BGFX_DIR, "scripts/geometryc.lua"))
 end
