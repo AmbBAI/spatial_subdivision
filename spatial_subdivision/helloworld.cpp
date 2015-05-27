@@ -28,8 +28,6 @@ int _main_(int /*_argc*/, char** /*_argv*/)
 		, 0
 		);
 
-	//bgfx::UniformHandle u_time = bgfx::createUniform("u_time", bgfx::UniformType::Uniform1f);
-
 	Mesh* mesh = meshLoad("meshes/bunny.bin");
 	bgfx::ProgramHandle program = loadProgram("vs_default", "fs_default");
 

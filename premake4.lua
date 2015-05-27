@@ -95,7 +95,7 @@ function createProject(_name)
     path.join(BX_DIR,   "include"),
     path.join(BGFX_DIR, "include"),
     path.join(BGFX_DIR, "3rdparty"),
-    path.join(BGFX_DIR, "examples/common"),
+    "common",
   }
 
   files {
@@ -106,7 +106,7 @@ function createProject(_name)
 
   links {
     "bgfx",
-    "example-common",
+    "common",
   }
 
   if _OPTIONS["with-sdl"] then
@@ -298,7 +298,7 @@ function createProject(_name)
 
   configuration { "osx" }
     files {
-      path.join(BGFX_DIR, "examples/common/**.mm"),
+      "common/**.mm",
     }
     links {
       "Cocoa.framework",
@@ -308,7 +308,7 @@ function createProject(_name)
   configuration { "ios*" }
     kind "ConsoleApp"
     files {
-      path.join(BGFX_DIR, "examples/common/**.mm"),
+      "common/**.mm",
     }
     linkoptions {
       "-framework CoreFoundation",
@@ -338,10 +338,9 @@ end
 
 dofile (path.join(BGFX_DIR, "scripts/bgfx.lua"))
 
-
 -- group "libs"
 bgfxProject("", "StaticLib", {})
-dofile (path.join(BGFX_DIR, "scripts/example-common.lua"))
+dofile "common.lua"
 
 createProject("spatial_subdivision")
 
