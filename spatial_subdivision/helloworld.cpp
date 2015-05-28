@@ -5,29 +5,9 @@
 
 #include "common.h"
 #include "bgfx_utils.h"
+#include "aabb_render.h"
 #include <vector>
 using namespace std;
-
-struct PosColorVertex
-{
-	float m_x;
-	float m_y;
-	float m_z;
-	uint32_t m_abgr;
-
-	static void init()
-	{
-		ms_decl
-			.begin()
-			.add(bgfx::Attrib::Position, 3, bgfx::AttribType::Float)
-			.add(bgfx::Attrib::Color0, 4, bgfx::AttribType::Uint8, true)
-			.end();
-	};
-
-	static bgfx::VertexDecl ms_decl;
-};
-
-bgfx::VertexDecl PosColorVertex::ms_decl;
 
 int _main_(int /*_argc*/, char** /*_argv*/)
 {
@@ -63,41 +43,9 @@ int _main_(int /*_argc*/, char** /*_argv*/)
 		aabb.m_max[1] = bx::fmin(g.m_aabb.m_max[1], aabb.m_max[1]);
 		aabb.m_max[2] = bx::fmin(g.m_aabb.m_max[2], aabb.m_max[2]);
 	}
-	 
-	PosColorVertex meshVertices[8] = {
-		{ aabb.m_min[0], aabb.m_min[1], aabb.m_min[2], 0xffffff },
-		{ aabb.m_min[0], aabb.m_min[1], aabb.m_max[2], 0xffffff },
-		{ aabb.m_min[0], aabb.m_max[1], aabb.m_min[2], 0xffffff },
-		{ aabb.m_min[0], aabb.m_max[1], aabb.m_max[2], 0xffffff },
-		{ aabb.m_max[0], aabb.m_min[1], aabb.m_min[2], 0xffffff },
-		{ aabb.m_max[0], aabb.m_min[1], aabb.m_max[2], 0xffffff },
-		{ aabb.m_max[0], aabb.m_max[1], aabb.m_min[2], 0xffffff },
-		{ aabb.m_max[0], aabb.m_max[1], aabb.m_max[2], 0xffffff }
-	};
 
-	uint16_t meshIndices[24] = {
-		0, 1, /**/ 0, 2, /**/ 1, 3, /**/ 2, 3,
-		4, 5, /**/ 4, 6, /**/ 5, 7, /**/ 6, 7,
-		0, 4, /**/ 1, 5, /**/ 2, 6, /**/ 3, 7
-	};
-
-	// Create vertex stream declaration.
-	PosColorVertex::init();
-
-	// Create static vertex buffer.
-	bgfx::VertexBufferHandle vbh = bgfx::createVertexBuffer(
-		// Static data can be passed with bgfx::makeRef
-		bgfx::makeRef(meshVertices, sizeof(meshVertices))
-		, PosColorVertex::ms_decl
-		);
-
-	// Create static index buffer.
-	bgfx::IndexBufferHandle ibh = bgfx::createIndexBuffer(
-		// Static data can be passed with bgfx::makeRef
-		bgfx::makeRef(meshIndices, sizeof(meshIndices))
-		);
-
-	bgfx::ProgramHandle lineProgram = loadProgram("vs_line", "fs_line");
+	AabbRender aabbRender;
+	aabbRender.init();
 
 	while (!entry::processEvents(width, height, debug, reset))
 	{
@@ -158,20 +106,19 @@ int _main_(int /*_argc*/, char** /*_argv*/)
 		bx::mtxRotateY(mtx, 90.f);
 		meshSubmit(mesh, 0, program, mtx);
 
-		bgfx::setTransform(mtx);
-		bgfx::setVertexBuffer(vbh);
-		bgfx::setIndexBuffer(ibh);
-		bgfx::setProgram(lineProgram);
-		bgfx::setState(BGFX_STATE_PT_LINES
-			| BGFX_STATE_RGB_WRITE
-			| BGFX_STATE_DEPTH_TEST_LESS
-			| BGFX_STATE_MSAA);
-		bgfx::submit(0);
+		aabbRender.prepareRender(mesh->m_groups.size());
+		for (auto g : mesh->m_groups)
+		{
+			aabbRender.addInstance(g.m_aabb, 0xff00ffff);
+		}
+		aabbRender.submit(0, mtx);
 
 		// Advance to next frame. Rendering thread will be kicked to 
 		// process submitted rendering primitives.
 		bgfx::frame();
 	}
+
+	aabbRender.close();
 
 	meshUnload(mesh);
 	bgfx::destroyProgram(program);
