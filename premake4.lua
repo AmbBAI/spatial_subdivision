@@ -33,7 +33,7 @@ newoption {
   description = "Enable building tools.",
 }
 
-solution "spatial_subdivision"
+solution "test_bgfx"
   configurations {
     "Debug",
     "Release",
@@ -53,7 +53,7 @@ solution "spatial_subdivision"
   end
 
   language "C++"
-  startproject "spatial_subdivision"
+  startproject "test_bgfx"
 
 BGFX_DIR = path.getabsolute("./bgfx")
 local BGFX_BUILD_DIR = "./build"
@@ -342,7 +342,7 @@ dofile (path.join(BGFX_DIR, "scripts/bgfx.lua"))
 bgfxProject("", "StaticLib", {})
 dofile "common.lua"
 
-createProject("spatial_subdivision")
+createProject("test_bgfx")
 
 if _OPTIONS["with-shared-lib"] then
   group "libs"
